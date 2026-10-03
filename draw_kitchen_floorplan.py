@@ -457,6 +457,34 @@ rect(
     fill=CABINET_FILL,
 )
 
+# Centered island sink
+# Standard 32" wide sink shown in top view.
+SINK_W = 32.0
+SINK_D = 18.0
+SINK_X = ISLAND_LEFT_X + (ISLAND_W - SINK_W) / 2.0
+
+# Move sink almost to the bottom edge of the island body.
+SINK_BOTTOM_CLEAR = 1.0
+SINK_Y = ISLAND_BOTTOM_Y - SINK_BOTTOM_CLEAR - SINK_D
+
+# Sink outer cutout
+rect(
+    SINK_X,
+    SINK_Y,
+    SINK_W,
+    SINK_D,
+    lw=1.1,
+    fill="white",
+)
+
+# Sink dimensions inside
+label(
+    SINK_X + SINK_W / 2.0,
+    SINK_Y + SINK_D / 2.0,
+    '32" x 18"',
+    size=8,
+)
+
 
 # Optional dimension callouts for the island placement
 # 52" vertical clearance to range run
