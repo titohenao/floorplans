@@ -159,54 +159,38 @@ ax.add_patch(
 # Kitchen cabinetry
 # Bottom run
 # Fridge footprint
-# Overall depth is 36" INCLUDING the handle/projection.
-# Main body + smaller centered top projection.
+# Simple single rectangle: 36" wide x 36" deep.
 FRIDGE_X = 108.0
 FRIDGE_W = 36.0
 FRIDGE_FRONT_Y = 312.0
-
-FRIDGE_TOTAL_D = 36.0
-FRIDGE_BODY_D = 30.0
-FRIDGE_TOP_PROJ_D = FRIDGE_TOTAL_D - FRIDGE_BODY_D   # 6"
-FRIDGE_TOP_PROJ_W = 30.0
-FRIDGE_TOP_PROJ_INSET = (FRIDGE_W - FRIDGE_TOP_PROJ_W) / 2.0
-
-FRIDGE_BODY_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_BODY_D
-FRIDGE_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_TOTAL_D
+FRIDGE_D = 36.0
+FRIDGE_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_D
 
 # Main body
-rect(FRIDGE_X, FRIDGE_BODY_TOP_Y, FRIDGE_W, FRIDGE_BODY_D, lw=1.1)
-
-# Small centered top projection
-rect(
-    FRIDGE_X + FRIDGE_TOP_PROJ_INSET,
-    FRIDGE_TOP_Y,
-    FRIDGE_TOP_PROJ_W,
-    FRIDGE_TOP_PROJ_D,
-    lw=1.1,
-)
-
-label(
-    FRIDGE_X + FRIDGE_W / 2,
-    FRIDGE_BODY_TOP_Y + FRIDGE_BODY_D / 2,
-    "FRIDGE",
-    size=9,
-    weight="bold",
-)
+rect(FRIDGE_X, FRIDGE_TOP_Y, FRIDGE_W, FRIDGE_D, lw=1.1)
+label(FRIDGE_X + FRIDGE_W / 2, FRIDGE_TOP_Y + FRIDGE_D / 2, "FRIDGE", size=9, weight="bold")
 
 # Fridge total-depth indicator: 36"
 FRIDGE_DIM_X = FRIDGE_X - 8.0
 line(FRIDGE_DIM_X, FRIDGE_TOP_Y, FRIDGE_DIM_X, FRIDGE_FRONT_Y, lw=0.8)
 raw_line(X(FRIDGE_DIM_X - 2), Y(FRIDGE_TOP_Y), X(FRIDGE_DIM_X + 2), Y(FRIDGE_TOP_Y), lw=0.8)
 raw_line(X(FRIDGE_DIM_X - 2), Y(FRIDGE_FRONT_Y), X(FRIDGE_DIM_X + 2), Y(FRIDGE_FRONT_Y), lw=0.8)
-raw_line(X(FRIDGE_DIM_X), Y(FRIDGE_TOP_Y), X(FRIDGE_X + FRIDGE_TOP_PROJ_INSET), Y(FRIDGE_TOP_Y), lw=0.6)
+raw_line(X(FRIDGE_DIM_X), Y(FRIDGE_TOP_Y), X(FRIDGE_X), Y(FRIDGE_TOP_Y), lw=0.6)
 raw_line(X(FRIDGE_DIM_X), Y(FRIDGE_FRONT_Y), X(FRIDGE_X), Y(FRIDGE_FRONT_Y), lw=0.6)
-raw_text(
-    X(FRIDGE_DIM_X - 3),
-    (Y(FRIDGE_TOP_Y) + Y(FRIDGE_FRONT_Y)) / 2,
-    '36"',
-    size=9,
-    ha="right",
+raw_text(X(FRIDGE_DIM_X - 3), (Y(FRIDGE_TOP_Y) + Y(FRIDGE_FRONT_Y)) / 2, '36"', size=9, ha="right")
+
+# Dashed fridge-open footprint: 52" total depth when open
+FRIDGE_OPEN_D = 52.0
+FRIDGE_OPEN_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_OPEN_D
+
+rect(
+    FRIDGE_X,
+    FRIDGE_OPEN_TOP_Y,
+    FRIDGE_W,
+    FRIDGE_OPEN_D,
+    lw=1.0,
+    fill="none",
+    dashed=True,
 )
 
 rect(144, 287, 30, 25, lw=1.1, fill=CABINET_FILL)
@@ -224,6 +208,26 @@ poly(
     fill="black",
 )
 label(189, 301, "STOVE", size=9, weight="bold", color="white")
+
+# Dashed stove-open footprint: 48" total depth from the south wall
+STOVE_OPEN_D = 48.0
+STOVE_OPEN_TOP_Y = 312.0 - STOVE_OPEN_D
+
+rect(
+    174,
+    STOVE_OPEN_TOP_Y,
+    30,
+    STOVE_OPEN_D,
+    lw=1.0,
+    fill="none",
+    dashed=True,
+)
+raw_text(
+    X(189),
+    Y(STOVE_OPEN_TOP_Y - 4),
+    '48" OPEN',
+    size=8,
+)
 
 # L-shaped base cabinet: one continuous polygon
 # Vertices trace the combined 22" bottom leg + 25" right leg.
@@ -599,7 +603,15 @@ for _px, _py in [(PLUMB_X, PLUMB_Y), (NEW_PLUMB_X, NEW_PLUMB_Y)]:
 
 # Room labels
 label(108, 27, "LIVING", size=12, weight="bold")
-label(163, 272, "KITCHEN", size=11, weight="bold")
+
+# Fridge open-depth label moved into the open kitchen area
+raw_text(
+    X(150),
+    Y(272),
+    '52"',
+    size=9,
+    weight="bold",
+)
 
 # Page title intentionally positioned in page space, not floor-plan space
 raw_text(123, 79, "SCHEMATIC FLOOR PLAN", size=11, ha="left", weight="bold")
