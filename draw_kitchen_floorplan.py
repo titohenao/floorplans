@@ -1,5 +1,6 @@
+
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle, Circle, Arc
+from matplotlib.patches import Rectangle, Circle, Arc, Polygon
 
 # ============================================================
 # GLOBAL SCALE
@@ -16,6 +17,7 @@ ORIGIN_Y = 119.0
 CANVAS_W = 1270
 CANVAS_H = 1494
 INK = "#111"
+CABINET_FILL = "0.88"
 
 
 # ============================================================
@@ -74,7 +76,20 @@ def rect(x_in, y_in, w_in, h_in, lw=1.0, fill="white", dashed=False):
     )
 
 
-def label(x_in, y_in, s, size=9, ha="center", weight="normal"):
+def poly(points_in, lw=1.0, fill="white"):
+    """Polygon whose vertices are given in physical inches."""
+    ax.add_patch(
+        Polygon(
+            [(X(x), Y(y)) for x, y in points_in],
+            closed=True,
+            linewidth=lw,
+            edgecolor=INK,
+            facecolor=fill,
+        )
+    )
+
+
+def label(x_in, y_in, s, size=9, ha="center", weight="normal", color=INK):
     ax.text(
         X(x_in),
         Y(y_in),
@@ -83,7 +98,7 @@ def label(x_in, y_in, s, size=9, ha="center", weight="normal"):
         family="DejaVu Sans",
         ha=ha,
         va="center",
-        color=INK,
+        color=color,
         fontweight=weight,
     )
 
@@ -115,21 +130,24 @@ def raw_text(x, y, s, size=9, ha="center", weight="normal"):
 # Right-side return extends 25" farther east.
 line(0,   312, 226, 312, lw=6)
 line(0,   312, 0,   242, lw=6)
-line(0,   206, 0,   0,   lw=6)
+line(0,   210, 0,   0,   lw=6)
 line(0,   0,   226, 0,   lw=6)
 line(226, 190, 226, 0,   lw=6)
 line(251, 312, 251, 190, lw=6)
+line(226, 190, 251, 190, lw=6)
+line(226, 312, 251, 312, lw=6)
 
-# Left door
-# 36" opening
-line(0, 242, 36, 242, lw=1.6)
+# Backyard door
+# 32" opening, with the lower edge/hinge still 70" from the bottom wall.
+BACKYARD_DOOR_W = 32.0
+BACKYARD_DOOR_Y = 242.0  # 312" - 70"
+
+line(0, BACKYARD_DOOR_Y, BACKYARD_DOOR_W, BACKYARD_DOOR_Y, lw=1.6)
 ax.add_patch(
     Arc(
-        # Original SVG:
-        # M (36, 242) A 36 36 0 0 0 (0, 206)
-        (X(0), Y(242)),
-        U(72),
-        U(72),
+        (X(0), Y(BACKYARD_DOOR_Y)),
+        U(BACKYARD_DOOR_W * 2),
+        U(BACKYARD_DOOR_W * 2),
         angle=0,
         theta1=270,
         theta2=360,
@@ -141,24 +159,47 @@ ax.add_patch(
 # Kitchen cabinetry
 # Bottom run
 rect(108, 287, 36, 25, lw=1.1)
-label(126, 301, "REF.", size=9, weight="bold")
+label(126, 301, "FRIDGE", size=9, weight="bold")
 
-rect(144, 287, 30, 25, lw=1.1)
+rect(144, 287, 30, 25, lw=1.1, fill=CABINET_FILL)
 label(159, 301, "BASE", size=9)
 
-rect(174, 287, 30, 25, lw=1.1)
-label(189, 301, "RANGE", size=9, weight="bold")
+# Stove as its own polygon
+poly(
+    [
+        (174, 287),
+        (204, 287),
+        (204, 312),
+        (174, 312),
+    ],
+    lw=1.1,
+    fill="black",
+)
+label(189, 301, "STOVE", size=9, weight="bold", color="white")
 
-rect(204, 287, 22, 25, lw=1.1)
+# L-shaped base cabinet: one continuous polygon
+# Vertices trace the combined 22" bottom leg + 25" right leg.
+poly(
+    [
+        (204, 287),
+        (226, 287),
+        (226, 247),
+        (251, 247),
+        (251, 312),
+        (204, 312),
+    ],
+    lw=1.1,
+    fill=CABINET_FILL,
+)
+
+# Keep labels in each functional leg
 label(215, 301, "BASE", size=9)
-
-# Right run
-rect(226, 247, 25, 65, lw=1.1)
 label(238.5, 281, "BASE", size=9)
 
 # Pantry
 rect(226, 190, 25, 57, lw=1.1)
 label(238.5, 220, "PANTRY", size=9, weight="bold")
+line(226, 247, 251, 247, lw=6)
 
 # Pantry door — 30", centered within the same 36" opening
 PANTRY_DOOR_W = 30.0
@@ -200,19 +241,6 @@ label(
 PLUMB_X = 148.0
 PLUMB_Y = 197.0
 
-# Small center mark
-ax.add_patch(
-    Circle(
-        (X(PLUMB_X), Y(PLUMB_Y)),
-        U(1.25),
-        facecolor="white",
-        edgecolor=INK,
-        linewidth=1.2,
-    )
-)
-line(145, 197, 151, 197, lw=0.8)
-line(148, 200, 148, 194, lw=0.8)
-
 # Plumbing data callout — Excel/scatter-plot style
 # Compact upper-right label connected to the plumbing point by an elbow leader.
 CALLOUT_X = PLUMB_X + 16.0
@@ -235,10 +263,10 @@ label(
 )
 
 # Sectional, exact overall footprint 125" x 99"
-rect(12, 114, 125, 38, lw=0.9)
-rect(12, 53, 38, 61, lw=0.9)
-label(74.5, 135, "SECTIONAL", size=9)
-label(74.5, 142, '125" × 99"', size=8)
+rect(12, 114, 125, 38, lw=0.9, fill="navy")
+rect(12, 53, 38, 61, lw=0.9, fill="navy")
+label(74.5, 135, "SECTIONAL", size=9, color="white")
+label(74.5, 142, '125" × 99"', size=8, color="white")
 line(15, 121, 134, 121, lw=0.6)
 line(43, 111, 43, 56, lw=0.6)
 
@@ -256,12 +284,6 @@ label(87, 12, "TV", size=9)
 # DIMENSION ANNOTATIONS
 # These dimensions are also defined from physical-inch anchors.
 # ============================================================
-
-# 13'-4" = 160"
-line(148, 312, 148, 152, lw=0.8)
-raw_line(X(146), Y(312), X(150), Y(312), lw=0.8)
-raw_line(X(146), Y(152), X(150), Y(152), lw=0.8)
-label(151, 232, '13\'-4" (160")', size=9, ha="left")
 
 # 4'-5" = 53"
 line(56, 53, 56, 0, lw=0.8)
@@ -285,12 +307,40 @@ raw_line(X(0), Y(242), left_dim_x, Y(242), lw=0.7)
 raw_line(left_dim_x, Y(312), left_dim_x, Y(242), lw=0.8)
 raw_text(left_dim_x - 12, (Y(312) + Y(242)) / 2, '5\'-10" (70")', size=9, ha="right")
 
-# Left-side 36" door opening segment
+# Left-side 32" backyard door opening segment
 door_dim_x = X(-12)
 raw_line(X(0), Y(242), door_dim_x - 4, Y(242), lw=0.7)
-raw_line(X(0), Y(206), door_dim_x - 4, Y(206), lw=0.7)
-raw_line(door_dim_x, Y(242), door_dim_x, Y(206), lw=0.8)
-raw_text(door_dim_x - 12, (Y(242) + Y(206)) / 2, '3\'-0"', size=9, ha="right")
+raw_line(X(0), Y(210), door_dim_x - 4, Y(210), lw=0.7)
+raw_line(door_dim_x, Y(242), door_dim_x, Y(210), lw=0.8)
+raw_text(door_dim_x - 12, (Y(242) + Y(210)) / 2, '2\'-8" (32")', size=9, ha="right")
+
+# Moved left of the fridge for readability.
+COUCH_CLEAR_X = 88.0
+COUCH_BOTTOM_Y = 152.0
+SOUTH_WALL_Y = 312.0
+
+line(COUCH_CLEAR_X, COUCH_BOTTOM_Y, COUCH_CLEAR_X, SOUTH_WALL_Y, lw=0.8)
+raw_line(
+    X(COUCH_CLEAR_X - 2),
+    Y(COUCH_BOTTOM_Y),
+    X(COUCH_CLEAR_X + 2),
+    Y(COUCH_BOTTOM_Y),
+    lw=0.8,
+)
+raw_line(
+    X(COUCH_CLEAR_X - 2),
+    Y(SOUTH_WALL_Y),
+    X(COUCH_CLEAR_X + 2),
+    Y(SOUTH_WALL_Y),
+    lw=0.8,
+)
+label(
+    COUCH_CLEAR_X - 3,
+    (COUCH_BOTTOM_Y + SOUTH_WALL_Y) / 2,
+    '13\'-4" (160")',
+    size=9,
+    ha="right",
+)
 
 # Bottom segmented dimensions
 bottom_y = Y(322)
@@ -310,6 +360,7 @@ raw_text(X(189), Y(319), '2\'-6"',  size=8)
 raw_text(X(215), Y(319), '1\'-10"', size=8)
 raw_text(X(238.5), Y(319), '2\'-1"', size=8)
 
+
 # Island
 # 7'-0" wide x 3'-6" deep
 # 52" clearance from the range run
@@ -320,8 +371,8 @@ CLEAR_TO_RANGE = 52.0
 CLEAR_TO_PANTRY = 36.0
 
 # Reference faces in inches
-RANGE_RUN_TOP_Y = 287.0
-PANTRY_LEFT_X = 226.0
+RANGE_RUN_TOP_Y = 287.0     # top face of the bottom cabinet/range run
+PANTRY_LEFT_X = 226.0       # left face of pantry wall/cabinet run
 
 # Place island so the bottom edge is 52" from the range run
 # and the right edge is 36" from the pantry.
@@ -330,21 +381,11 @@ ISLAND_LEFT_X = ISLAND_RIGHT_X - ISLAND_W
 ISLAND_BOTTOM_Y = RANGE_RUN_TOP_Y - CLEAR_TO_RANGE
 ISLAND_TOP_Y = ISLAND_BOTTOM_Y - ISLAND_H
 
-rect(ISLAND_LEFT_X, ISLAND_TOP_Y, ISLAND_W, ISLAND_H, lw=1.4, fill="none")
-label(
-    (ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2,
-    (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 - 3,
-    "ISLAND",
-    size=10,
-    weight="bold",
-)
-label(
-    (ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2,
-    (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 + 5,
-    '7\'-0" × 3\'-6"',
-    size=8,
-)
+rect(ISLAND_LEFT_X, ISLAND_TOP_Y, ISLAND_W, ISLAND_H, lw=1.4, fill=CABINET_FILL)
+label((ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2, (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 - 3, "ISLAND", size=10, weight="bold")
+label((ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2, (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 + 5, '7\'-0" × 3\'-6"', size=8)
 
+# Optional dimension callouts for the island placement
 # 52" vertical clearance to range run
 dim_x = ISLAND_LEFT_X - 8
 line(dim_x, ISLAND_BOTTOM_Y, dim_x, RANGE_RUN_TOP_Y, lw=0.8)
@@ -352,26 +393,43 @@ raw_line(X(dim_x - 2), Y(ISLAND_BOTTOM_Y), X(dim_x + 2), Y(ISLAND_BOTTOM_Y), lw=
 raw_line(X(dim_x - 2), Y(RANGE_RUN_TOP_Y), X(dim_x + 2), Y(RANGE_RUN_TOP_Y), lw=0.8)
 raw_line(X(dim_x), Y(ISLAND_BOTTOM_Y), X(ISLAND_LEFT_X), Y(ISLAND_BOTTOM_Y), lw=0.6)
 raw_line(X(dim_x), Y(RANGE_RUN_TOP_Y), X(174), Y(RANGE_RUN_TOP_Y), lw=0.6)
-raw_text(
-    X(dim_x - 3),
-    (Y(ISLAND_BOTTOM_Y) + Y(RANGE_RUN_TOP_Y)) / 2,
-    '52"',
-    size=9,
-    ha="right",
-)
+raw_text(X(dim_x - 3), (Y(ISLAND_BOTTOM_Y) + Y(RANGE_RUN_TOP_Y)) / 2, '52"', size=9, ha="right")
 
 # 36" horizontal clearance to pantry
-dim_y = ISLAND_TOP_Y - 8
+dim_y = ISLAND_BOTTOM_Y + 16
 line(ISLAND_RIGHT_X, dim_y, PANTRY_LEFT_X, dim_y, lw=0.8)
 raw_line(X(ISLAND_RIGHT_X), Y(dim_y - 2), X(ISLAND_RIGHT_X), Y(dim_y + 2), lw=0.8)
 raw_line(X(PANTRY_LEFT_X), Y(dim_y - 2), X(PANTRY_LEFT_X), Y(dim_y + 2), lw=0.8)
-raw_line(X(ISLAND_RIGHT_X), Y(dim_y), X(ISLAND_RIGHT_X), Y(ISLAND_TOP_Y), lw=0.6)
+raw_line(X(ISLAND_RIGHT_X), Y(dim_y), X(ISLAND_RIGHT_X), Y(ISLAND_BOTTOM_Y), lw=0.6)
 raw_line(X(PANTRY_LEFT_X), Y(dim_y), X(PANTRY_LEFT_X), Y(190), lw=0.6)
-raw_text(
-    (X(ISLAND_RIGHT_X) + X(PANTRY_LEFT_X)) / 2,
-    Y(dim_y - 4),
-    '36"',
-    size=9,
+raw_text((X(ISLAND_RIGHT_X) + X(PANTRY_LEFT_X)) / 2, Y(dim_y - 4), '36"', size=9)
+
+# Re-draw plumbing marker in the foreground as a compact bullseye
+ax.add_patch(
+    Circle(
+        (X(PLUMB_X), Y(PLUMB_Y)),
+        U(1.25),
+        facecolor="white",
+        edgecolor=INK,
+        linewidth=1.2,
+        zorder=10,
+    )
+)
+ax.plot(
+    [X(PLUMB_X - 1.5), X(PLUMB_X + 1.5)],
+    [Y(PLUMB_Y), Y(PLUMB_Y)],
+    color=INK,
+    linewidth=0.8,
+    solid_capstyle="butt",
+    zorder=11,
+)
+ax.plot(
+    [X(PLUMB_X), X(PLUMB_X)],
+    [Y(PLUMB_Y - 1.5), Y(PLUMB_Y + 1.5)],
+    color=INK,
+    linewidth=0.8,
+    solid_capstyle="butt",
+    zorder=11,
 )
 
 # Room labels
