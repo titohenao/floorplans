@@ -278,6 +278,70 @@ raw_text(X(189), Y(319), '2\'-6"',  size=8)
 raw_text(X(215), Y(319), '1\'-10"', size=8)
 raw_text(X(238.5), Y(319), '2\'-1"', size=8)
 
+# Island
+# 7'-0" wide x 3'-6" deep
+# 52" clearance from the range run
+# 36" clearance from the pantry face
+ISLAND_W = 84.0
+ISLAND_H = 42.0
+CLEAR_TO_RANGE = 52.0
+CLEAR_TO_PANTRY = 36.0
+
+# Reference faces in inches
+RANGE_RUN_TOP_Y = 287.0
+PANTRY_LEFT_X = 226.0
+
+# Place island so the bottom edge is 52" from the range run
+# and the right edge is 36" from the pantry.
+ISLAND_RIGHT_X = PANTRY_LEFT_X - CLEAR_TO_PANTRY
+ISLAND_LEFT_X = ISLAND_RIGHT_X - ISLAND_W
+ISLAND_BOTTOM_Y = RANGE_RUN_TOP_Y - CLEAR_TO_RANGE
+ISLAND_TOP_Y = ISLAND_BOTTOM_Y - ISLAND_H
+
+rect(ISLAND_LEFT_X, ISLAND_TOP_Y, ISLAND_W, ISLAND_H, lw=1.4)
+label(
+    (ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2,
+    (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 - 3,
+    "ISLAND",
+    size=10,
+    weight="bold",
+)
+label(
+    (ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2,
+    (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 + 5,
+    '7\'-0" × 3\'-6"',
+    size=8,
+)
+
+# 52" vertical clearance to range run
+dim_x = ISLAND_LEFT_X - 8
+line(dim_x, ISLAND_BOTTOM_Y, dim_x, RANGE_RUN_TOP_Y, lw=0.8)
+raw_line(X(dim_x - 2), Y(ISLAND_BOTTOM_Y), X(dim_x + 2), Y(ISLAND_BOTTOM_Y), lw=0.8)
+raw_line(X(dim_x - 2), Y(RANGE_RUN_TOP_Y), X(dim_x + 2), Y(RANGE_RUN_TOP_Y), lw=0.8)
+raw_line(X(dim_x), Y(ISLAND_BOTTOM_Y), X(ISLAND_LEFT_X), Y(ISLAND_BOTTOM_Y), lw=0.6)
+raw_line(X(dim_x), Y(RANGE_RUN_TOP_Y), X(174), Y(RANGE_RUN_TOP_Y), lw=0.6)
+raw_text(
+    X(dim_x - 3),
+    (Y(ISLAND_BOTTOM_Y) + Y(RANGE_RUN_TOP_Y)) / 2,
+    '52"',
+    size=9,
+    ha="right",
+)
+
+# 36" horizontal clearance to pantry
+dim_y = ISLAND_TOP_Y - 8
+line(ISLAND_RIGHT_X, dim_y, PANTRY_LEFT_X, dim_y, lw=0.8)
+raw_line(X(ISLAND_RIGHT_X), Y(dim_y - 2), X(ISLAND_RIGHT_X), Y(dim_y + 2), lw=0.8)
+raw_line(X(PANTRY_LEFT_X), Y(dim_y - 2), X(PANTRY_LEFT_X), Y(dim_y + 2), lw=0.8)
+raw_line(X(ISLAND_RIGHT_X), Y(dim_y), X(ISLAND_RIGHT_X), Y(ISLAND_TOP_Y), lw=0.6)
+raw_line(X(PANTRY_LEFT_X), Y(dim_y), X(PANTRY_LEFT_X), Y(190), lw=0.6)
+raw_text(
+    (X(ISLAND_RIGHT_X) + X(PANTRY_LEFT_X)) / 2,
+    Y(dim_y - 4),
+    '36"',
+    size=9,
+)
+
 # Room labels
 label(108, 27, "LIVING", size=12, weight="bold")
 label(163, 272, "KITCHEN", size=11, weight="bold")
