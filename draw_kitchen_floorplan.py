@@ -160,16 +160,27 @@ label(238.5, 281, "BASE", size=9)
 rect(226, 190, 25, 57, lw=1.1)
 label(238.5, 220, "PANTRY", size=9, weight="bold")
 
-# Pantry door — 36"
-line(226, 200.5, 190, 200.5, lw=1.6)
+# Pantry door — 30", centered within the same 36" opening
+PANTRY_DOOR_W = 30.0
+PANTRY_OPENING_W = 36.0
+PANTRY_DOOR_OFFSET = (PANTRY_OPENING_W - PANTRY_DOOR_W) / 2.0  # 3" each side
+
+PANTRY_DOOR_HINGE_X = 226.0
+PANTRY_DOOR_Y = 200.5 + PANTRY_DOOR_OFFSET
+
+line(
+    PANTRY_DOOR_HINGE_X,
+    PANTRY_DOOR_Y,
+    PANTRY_DOOR_HINGE_X - PANTRY_DOOR_W,
+    PANTRY_DOOR_Y,
+    lw=1.6,
+)
+
 ax.add_patch(
     Arc(
-        # Original SVG:
-        # M (226, 236.5) A 36 36 0 0 1 (190, 200.5)
-        # Hinge/center is at the pantry wall: (226, 200.5)
-        (X(226), Y(200.5)),
-        U(72),
-        U(72),
+        (X(PANTRY_DOOR_HINGE_X), Y(PANTRY_DOOR_Y)),
+        U(PANTRY_DOOR_W * 2),
+        U(PANTRY_DOOR_W * 2),
         angle=0,
         theta1=90,
         theta2=180,
@@ -177,11 +188,19 @@ ax.add_patch(
         edgecolor=INK,
     )
 )
-label(207, 197, '3\'-0" PANTRY DOOR', size=8)
 
-# Island plumbing center
+label(
+    PANTRY_DOOR_HINGE_X - PANTRY_DOOR_W / 2,
+    PANTRY_DOOR_Y - 3.5,
+    '2\'-6" PANTRY DOOR',
+    size=8,
+)
+
+# Island plumbing location
 PLUMB_X = 148.0
 PLUMB_Y = 197.0
+
+# Small center mark
 ax.add_patch(
     Circle(
         (X(PLUMB_X), Y(PLUMB_Y)),
@@ -193,14 +212,27 @@ ax.add_patch(
 )
 line(145, 197, 151, 197, lw=0.8)
 line(148, 200, 148, 194, lw=0.8)
-label(148, 190, "ISLAND PLUMBING", size=9)
 
-# Plumbing reference dimensions
-line(148, 312, 148, 197, lw=0.7, dashed=True)
-label(151, 257, '9\'-7"', size=9, ha="left")
+# Plumbing data callout — Excel/scatter-plot style
+# Compact upper-right label connected to the plumbing point by an elbow leader.
+CALLOUT_X = PLUMB_X + 16.0
+CALLOUT_Y = PLUMB_Y - 14.0
 
-line(148, 197, 226, 197, lw=0.7, dashed=True)
-label(187, 194, '6\'-6"', size=9)
+# Leader: point -> angled segment -> short horizontal segment
+LEADER_KNEE_X = PLUMB_X + 9.0
+LEADER_KNEE_Y = PLUMB_Y - 11.0
+LEADER_END_X = CALLOUT_X - 2.0
+
+line(PLUMB_X, PLUMB_Y, LEADER_KNEE_X, LEADER_KNEE_Y, lw=0.8)
+line(LEADER_KNEE_X, LEADER_KNEE_Y, LEADER_END_X, LEADER_KNEE_Y, lw=0.8)
+
+label(
+    CALLOUT_X,
+    CALLOUT_Y,
+    '78" from pantry\n115" from north wall',
+    size=8,
+    ha="left",
+)
 
 # Sectional, exact overall footprint 125" x 99"
 rect(12, 114, 125, 38, lw=0.9)
@@ -298,7 +330,7 @@ ISLAND_LEFT_X = ISLAND_RIGHT_X - ISLAND_W
 ISLAND_BOTTOM_Y = RANGE_RUN_TOP_Y - CLEAR_TO_RANGE
 ISLAND_TOP_Y = ISLAND_BOTTOM_Y - ISLAND_H
 
-rect(ISLAND_LEFT_X, ISLAND_TOP_Y, ISLAND_W, ISLAND_H, lw=1.4)
+rect(ISLAND_LEFT_X, ISLAND_TOP_Y, ISLAND_W, ISLAND_H, lw=1.4, fill="none")
 label(
     (ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2,
     (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 - 3,
