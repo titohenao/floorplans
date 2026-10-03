@@ -485,6 +485,44 @@ label(
     size=8,
 )
 
+
+# Dishwasher immediately to the right of the sink
+DISHWASHER_W = 24.0
+DISHWASHER_D = ISLAND_BASE_H
+DISHWASHER_X = SINK_X + SINK_W
+DISHWASHER_Y = ISLAND_TOP_Y + ISLAND_OVERHANG_H
+
+# Dishwasher dashed outline, with the right vertical edge omitted.
+line(DISHWASHER_X, DISHWASHER_Y, DISHWASHER_X + DISHWASHER_W, DISHWASHER_Y, lw=1.0, dashed=True)
+line(DISHWASHER_X, DISHWASHER_Y + DISHWASHER_D, DISHWASHER_X + DISHWASHER_W, DISHWASHER_Y + DISHWASHER_D, lw=1.0, dashed=True)
+line(DISHWASHER_X, DISHWASHER_Y, DISHWASHER_X, DISHWASHER_Y + DISHWASHER_D, lw=1.0, dashed=True)
+label(
+    DISHWASHER_X + DISHWASHER_W / 2.0,
+    DISHWASHER_Y + DISHWASHER_D / 2.0,
+    'DW 24"',
+    size=8,
+)
+
+# Dishwasher open footprint: 28" open
+DISHWASHER_OPEN_D = 28.0
+DISHWASHER_OPEN_Y = DISHWASHER_Y + DISHWASHER_D
+
+rect(
+    DISHWASHER_X,
+    DISHWASHER_OPEN_Y,
+    DISHWASHER_W,
+    DISHWASHER_OPEN_D,
+    lw=1.0,
+    fill="none",
+    dashed=True,
+)
+label(
+    DISHWASHER_X + DISHWASHER_W / 2.0,
+    DISHWASHER_OPEN_Y + DISHWASHER_OPEN_D / 2.0,
+    '28"',
+    size=8,
+)
+
 # Three stools, shown as dashed squares just above the island
 STOOL_W = 24.0
 STOOL_D = 24.0
