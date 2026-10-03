@@ -158,8 +158,56 @@ ax.add_patch(
 
 # Kitchen cabinetry
 # Bottom run
-rect(108, 287, 36, 25, lw=1.1)
-label(126, 301, "FRIDGE", size=9, weight="bold")
+# Fridge footprint
+# Overall depth is 36" INCLUDING the handle/projection.
+# Main body + smaller centered top projection.
+FRIDGE_X = 108.0
+FRIDGE_W = 36.0
+FRIDGE_FRONT_Y = 312.0
+
+FRIDGE_TOTAL_D = 36.0
+FRIDGE_BODY_D = 30.0
+FRIDGE_TOP_PROJ_D = FRIDGE_TOTAL_D - FRIDGE_BODY_D   # 6"
+FRIDGE_TOP_PROJ_W = 30.0
+FRIDGE_TOP_PROJ_INSET = (FRIDGE_W - FRIDGE_TOP_PROJ_W) / 2.0
+
+FRIDGE_BODY_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_BODY_D
+FRIDGE_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_TOTAL_D
+
+# Main body
+rect(FRIDGE_X, FRIDGE_BODY_TOP_Y, FRIDGE_W, FRIDGE_BODY_D, lw=1.1)
+
+# Small centered top projection
+rect(
+    FRIDGE_X + FRIDGE_TOP_PROJ_INSET,
+    FRIDGE_TOP_Y,
+    FRIDGE_TOP_PROJ_W,
+    FRIDGE_TOP_PROJ_D,
+    lw=1.1,
+)
+
+label(
+    FRIDGE_X + FRIDGE_W / 2,
+    FRIDGE_BODY_TOP_Y + FRIDGE_BODY_D / 2,
+    "FRIDGE",
+    size=9,
+    weight="bold",
+)
+
+# Fridge total-depth indicator: 36"
+FRIDGE_DIM_X = FRIDGE_X - 8.0
+line(FRIDGE_DIM_X, FRIDGE_TOP_Y, FRIDGE_DIM_X, FRIDGE_FRONT_Y, lw=0.8)
+raw_line(X(FRIDGE_DIM_X - 2), Y(FRIDGE_TOP_Y), X(FRIDGE_DIM_X + 2), Y(FRIDGE_TOP_Y), lw=0.8)
+raw_line(X(FRIDGE_DIM_X - 2), Y(FRIDGE_FRONT_Y), X(FRIDGE_DIM_X + 2), Y(FRIDGE_FRONT_Y), lw=0.8)
+raw_line(X(FRIDGE_DIM_X), Y(FRIDGE_TOP_Y), X(FRIDGE_X + FRIDGE_TOP_PROJ_INSET), Y(FRIDGE_TOP_Y), lw=0.6)
+raw_line(X(FRIDGE_DIM_X), Y(FRIDGE_FRONT_Y), X(FRIDGE_X), Y(FRIDGE_FRONT_Y), lw=0.6)
+raw_text(
+    X(FRIDGE_DIM_X - 3),
+    (Y(FRIDGE_TOP_Y) + Y(FRIDGE_FRONT_Y)) / 2,
+    '36"',
+    size=9,
+    ha="right",
+)
 
 rect(144, 287, 30, 25, lw=1.1, fill=CABINET_FILL)
 label(159, 301, "BASE", size=9)
@@ -500,33 +548,54 @@ raw_text(
     size=9,
 )
 
-# Re-draw plumbing marker in the foreground as a compact bullseye
-ax.add_patch(
-    Circle(
-        (X(PLUMB_X), Y(PLUMB_Y)),
-        U(1.25),
-        facecolor="white",
-        edgecolor=INK,
-        linewidth=1.2,
-        zorder=10,
+# New plumbing target inside the island
+# Same X coordinate; vertical offset only.
+NEW_PLUMB_X = PLUMB_X
+NEW_PLUMB_Y = PLUMB_Y + 12.0
+
+# Vertical offset only between existing and new plumbing locations
+PLUMB_OFFSET_DIM_X = PLUMB_X + 8.0
+line(PLUMB_OFFSET_DIM_X, PLUMB_Y, PLUMB_OFFSET_DIM_X, NEW_PLUMB_Y, lw=0.8)
+raw_line(X(PLUMB_OFFSET_DIM_X - 2), Y(PLUMB_Y), X(PLUMB_OFFSET_DIM_X + 2), Y(PLUMB_Y), lw=0.8)
+raw_line(X(PLUMB_OFFSET_DIM_X - 2), Y(NEW_PLUMB_Y), X(PLUMB_OFFSET_DIM_X + 2), Y(NEW_PLUMB_Y), lw=0.8)
+raw_line(X(PLUMB_X), Y(PLUMB_Y), X(PLUMB_OFFSET_DIM_X), Y(PLUMB_Y), lw=0.6)
+raw_line(X(NEW_PLUMB_X), Y(NEW_PLUMB_Y), X(PLUMB_OFFSET_DIM_X), Y(NEW_PLUMB_Y), lw=0.6)
+raw_text(
+    X(PLUMB_OFFSET_DIM_X + 3),
+    (Y(PLUMB_Y) + Y(NEW_PLUMB_Y)) / 2,
+    '12"',
+    size=9,
+    ha="left",
+)
+
+# Re-draw plumbing markers in the foreground as compact bullseyes
+for _px, _py in [(PLUMB_X, PLUMB_Y), (NEW_PLUMB_X, NEW_PLUMB_Y)]:
+    ax.add_patch(
+        Circle(
+            (X(_px), Y(_py)),
+            U(1.25),
+            facecolor="white",
+            edgecolor=INK,
+            linewidth=1.2,
+            zorder=10,
+        )
     )
-)
-ax.plot(
-    [X(PLUMB_X - 1.5), X(PLUMB_X + 1.5)],
-    [Y(PLUMB_Y), Y(PLUMB_Y)],
-    color=INK,
-    linewidth=0.8,
-    solid_capstyle="butt",
-    zorder=11,
-)
-ax.plot(
-    [X(PLUMB_X), X(PLUMB_X)],
-    [Y(PLUMB_Y - 1.5), Y(PLUMB_Y + 1.5)],
-    color=INK,
-    linewidth=0.8,
-    solid_capstyle="butt",
-    zorder=11,
-)
+    ax.plot(
+        [X(_px - 1.5), X(_px + 1.5)],
+        [Y(_py), Y(_py)],
+        color=INK,
+        linewidth=0.8,
+        solid_capstyle="butt",
+        zorder=11,
+    )
+    ax.plot(
+        [X(_px), X(_px)],
+        [Y(_py - 1.5), Y(_py + 1.5)],
+        color=INK,
+        linewidth=0.8,
+        solid_capstyle="butt",
+        zorder=11,
+    )
 
 # Room labels
 label(108, 27, "LIVING", size=12, weight="bold")
