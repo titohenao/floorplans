@@ -333,46 +333,46 @@ rect(73, 3, 28, 5, lw=0.8)
 label(87, 12, "TV", size=9)
 
 # Breakfast nook
-# L-shaped built-in bench in the bottom-left corner.
-BENCH_DEPTH = 24.0
-BENCH_LONG_L = 84.0   # along bottom wall
-BENCH_SHORT_L = 60.0  # along left wall
+# Compact corner dining set based on supplied reference image.
+NOOK_LEG_BOTTOM = 72.0
+NOOK_LEG_SIDE = 60.0
+NOOK_DEPTH = 18.0
 
-# L-shaped built-in bench as one continuous polygon
+# One continuous L-shaped corner bench
 poly(
     [
         (0.0, 312.0),
-        (BENCH_LONG_L, 312.0),
-        (BENCH_LONG_L, 312.0 - BENCH_DEPTH),
-        (BENCH_DEPTH, 312.0 - BENCH_DEPTH),
-        (BENCH_DEPTH, 312.0 - BENCH_SHORT_L),
-        (0.0, 312.0 - BENCH_SHORT_L),
+        (NOOK_LEG_BOTTOM, 312.0),
+        (NOOK_LEG_BOTTOM, 312.0 - NOOK_DEPTH),
+        (NOOK_DEPTH, 312.0 - NOOK_DEPTH),
+        (NOOK_DEPTH, 312.0 - NOOK_LEG_SIDE),
+        (0.0, 312.0 - NOOK_LEG_SIDE),
     ],
     lw=0.9,
     fill=NOOK_WOOD_FILL,
 )
 
-# Internal dimensions only
+# Internal bench dimensions
 label(
-    BENCH_LONG_L / 2.0 + 8.0,
-    312.0 - BENCH_DEPTH / 2.0,
-    '84" x 24"',
-    size=8,
+    NOOK_LEG_BOTTOM / 2.0 + 5.0,
+    312.0 - NOOK_DEPTH / 2.0,
+    '72" x 18"',
+    size=7.5,
 )
 label(
-    BENCH_DEPTH / 2.0,
-    312.0 - BENCH_SHORT_L / 2.0 - 6.0,
-    '60" x 24"',
-    size=8,
+    NOOK_DEPTH / 2.0,
+    312.0 - NOOK_LEG_SIDE / 2.0 - 4.0,
+    '60" x 18"',
+    size=7.5,
 )
 
-# Table centered in front of the L-bench
-TABLE_W = 48.0
-TABLE_D = 30.0
-TABLE_GAP = 11.0  # target 10–12 in from bench seat edges
+# Table
+TABLE_W = 42.0
+TABLE_D = 28.0
+TABLE_GAP = 11.0
 
-TABLE_X = BENCH_DEPTH + TABLE_GAP
-TABLE_BOTTOM_Y = (312.0 - BENCH_DEPTH) - TABLE_GAP
+TABLE_X = NOOK_DEPTH + TABLE_GAP
+TABLE_BOTTOM_Y = (312.0 - NOOK_DEPTH) - TABLE_GAP
 TABLE_Y = TABLE_BOTTOM_Y - TABLE_D
 
 rect(
@@ -386,8 +386,8 @@ rect(
 label(
     TABLE_X + TABLE_W / 2.0,
     TABLE_Y + TABLE_D / 2.0,
-    'TABLE 48" x 30"',
-    size=8,
+    '42" x 28"',
+    size=7.5,
 )
 
 # ============================================================
