@@ -485,6 +485,28 @@ label(
     size=8,
 )
 
+# Three stools, shown as dashed squares just above the island
+STOOL_W = 24.0
+STOOL_D = 24.0
+STOOL_GAP = 3.0
+STOOL_PULL_OUT = 2.0
+
+STOOL_GROUP_W = 3 * STOOL_W + 2 * STOOL_GAP
+STOOL_START_X = ISLAND_LEFT_X + (ISLAND_W - STOOL_GROUP_W) / 2.0
+STOOL_Y = ISLAND_TOP_Y - STOOL_D - STOOL_PULL_OUT
+
+for i in range(3):
+    stool_x = STOOL_START_X + i * (STOOL_W + STOOL_GAP)
+    rect(
+        stool_x,
+        STOOL_Y,
+        STOOL_W,
+        STOOL_D,
+        lw=1.0,
+        fill="none",
+        dashed=True,
+    )
+
 
 # Optional dimension callouts for the island placement
 # 52" vertical clearance to range run
