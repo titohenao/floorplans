@@ -1,155 +1,299 @@
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle, Arc
 
-W, H = 1270, 1494
+# ============================================================
+# GLOBAL SCALE
+# ============================================================
+# All architectural geometry below is specified in INCHES.
+# Changing SCALE changes only the rendered drawing size.
+# It does NOT change any physical dimension.
+SCALE = 4.0  # drawing units per inch
+
+# Canvas origin for the architectural plan.
+ORIGIN_X = 123.0
+ORIGIN_Y = 119.0
+
+CANVAS_W = 1270
+CANVAS_H = 1494
 INK = "#111"
 
-fig, ax = plt.subplots(figsize=(W/100, H/100), dpi=100)
-ax.set_xlim(0, W)
-ax.set_ylim(H, 0)  # match SVG coordinates: origin at top-left
+
+# ============================================================
+# UNIT HELPERS
+# ============================================================
+def X(inches):
+    """Physical x-coordinate in inches -> drawing x-coordinate."""
+    return ORIGIN_X + inches * SCALE
+
+
+def Y(inches):
+    """Physical y-coordinate in inches -> drawing y-coordinate."""
+    return ORIGIN_Y + inches * SCALE
+
+
+def U(inches):
+    """Physical length in inches -> drawing length."""
+    return inches * SCALE
+
+
+# ============================================================
+# BASIC DRAWING HELPERS
+# ============================================================
+fig, ax = plt.subplots(figsize=(CANVAS_W / 100, CANVAS_H / 100), dpi=100)
+ax.set_xlim(0, CANVAS_W)
+ax.set_ylim(CANVAS_H, 0)  # SVG-style coordinates: y increases downward
 ax.set_aspect("equal")
 ax.axis("off")
+
 fig.patch.set_facecolor("white")
 ax.set_facecolor("white")
 
-def line(x1, y1, x2, y2, lw=1, dashed=False):
-    ax.plot([x1, x2], [y1, y2], color=INK, linewidth=lw,
+
+def line(x1_in, y1_in, x2_in, y2_in, lw=1.0, dashed=False):
+    ax.plot(
+        [X(x1_in), X(x2_in)],
+        [Y(y1_in), Y(y2_in)],
+        color=INK,
+        linewidth=lw,
+        linestyle=(0, (5, 4)) if dashed else "-",
+        solid_capstyle="butt",
+    )
+
+
+def rect(x_in, y_in, w_in, h_in, lw=1.0, fill="white", dashed=False):
+    ax.add_patch(
+        Rectangle(
+            (X(x_in), Y(y_in)),
+            U(w_in),
+            U(h_in),
+            linewidth=lw,
+            edgecolor=INK,
+            facecolor=fill,
             linestyle=(0, (5, 4)) if dashed else "-",
-            solid_capstyle="butt")
+        )
+    )
 
-def rect(x, y, w, h, lw=1, fill="white"):
-    ax.add_patch(Rectangle((x, y), w, h, linewidth=lw,
-                           edgecolor=INK, facecolor=fill))
 
-def text(x, y, s, size=9, ha="center", weight="normal"):
-    ax.text(x, y, s, fontsize=size, family="Arial",
-            ha=ha, va="center", color=INK, fontweight=weight)
+def label(x_in, y_in, s, size=9, ha="center", weight="normal"):
+    ax.text(
+        X(x_in),
+        Y(y_in),
+        s,
+        fontsize=size,
+        family="DejaVu Sans",
+        ha=ha,
+        va="center",
+        color=INK,
+        fontweight=weight,
+    )
 
-# --- Main room walls ---
-line(123,1367,1027,1367,6)
-line(123,1367,123,1087,6)
-line(123,943,123,119,6)
-line(123,119,1027,119,6)
-line(1027,879,1027,119,6)
-line(1127,1367,1127,879,6)
 
-# --- Left door ---
-line(123,1087,267,1087,1.6)
-ax.add_patch(Arc((123,1087), 288, 288, angle=0, theta1=270, theta2=360,
-                 linewidth=1, edgecolor=INK))
+def raw_line(x1, y1, x2, y2, lw=1.0):
+    """For page annotation geometry that is not part of the physical plan."""
+    ax.plot([x1, x2], [y1, y2], color=INK, linewidth=lw, solid_capstyle="butt")
 
-# --- Kitchen cabinetry ---
-rect(555,1267,144,100,1.1)
-text(627,1323,"REF.",9,weight="bold")
 
-rect(699,1267,120,100,1.1)
-text(759,1323,"BASE",9)
+def raw_text(x, y, s, size=9, ha="center", weight="normal"):
+    ax.text(
+        x, y, s,
+        fontsize=size,
+        family="DejaVu Sans",
+        ha=ha,
+        va="center",
+        color=INK,
+        fontweight=weight,
+    )
 
-rect(819,1267,120,100,1.1)
-text(879,1323,"RANGE",9,weight="bold")
 
-rect(939,1267,88,100,1.1)
-text(983,1323,"BASE",9)
+# ============================================================
+# PHYSICAL PLAN GEOMETRY — ALL DIMENSIONS IN INCHES
+# ============================================================
 
-rect(1027,1107,100,260,1.1)
-text(1077,1243,"BASE",9)
+# Main walls
+# Overall vertical length = 26'-0" = 312"
+# Main horizontal width to pantry wall = 18'-10" = 226"
+# Right-side return extends 25" farther east.
+line(0,   312, 226, 312, lw=6)
+line(0,   312, 0,   242, lw=6)
+line(0,   206, 0,   0,   lw=6)
+line(0,   0,   226, 0,   lw=6)
+line(226, 190, 226, 0,   lw=6)
+line(251, 312, 251, 190, lw=6)
 
-rect(1027,879,100,228,1.1)
-text(1077,999,"PANTRY",9,weight="bold")
+# Left door
+# 36" opening
+line(0, 242, 36, 242, lw=1.6)
+ax.add_patch(
+    Arc(
+        # Original SVG:
+        # M (36, 242) A 36 36 0 0 0 (0, 206)
+        (X(0), Y(242)),
+        U(72),
+        U(72),
+        angle=0,
+        theta1=270,
+        theta2=360,
+        linewidth=1,
+        edgecolor=INK,
+    )
+)
 
-# --- Pantry door ---
-line(1027,921,883,921,1.6)
-ax.add_patch(Arc((1027,921), 288, 288, angle=0, theta1=90, theta2=180,
-                 linewidth=1, edgecolor=INK))
-text(951,907,'3\'-0" PANTRY DOOR',8)
+# Kitchen cabinetry
+# Bottom run
+rect(108, 287, 36, 25, lw=1.1)
+label(126, 301, "REF.", size=9, weight="bold")
 
-# --- Island plumbing point + dimensions ---
-ax.add_patch(Circle((715,907),5,facecolor="white",edgecolor=INK,linewidth=1.2))
-line(703,907,727,907,0.8)
-line(715,919,715,895,0.8)
-text(715,879,"ISLAND PLUMBING",9)
-line(715,1367,715,907,0.7,True)
-text(727,1147,'9\'-7"',9,ha="left")
-line(715,907,1027,907,0.7,True)
-text(871,895,'6\'-6"',9)
+rect(144, 287, 30, 25, lw=1.1)
+label(159, 301, "BASE", size=9)
 
-# --- Sectional ---
-rect(171,575,500,152,0.9)
-rect(171,331,152,244,0.9)
-text(421,659,"SECTIONAL",9)
-text(421,687,'125" × 99"',8)
-line(183,603,659,603,0.6)
-line(295,563,295,343,0.6)
+rect(174, 287, 30, 25, lw=1.1)
+label(189, 301, "RANGE", size=9, weight="bold")
 
-# --- 1'-0" wall offset ---
-line(123,755,171,755,0.8)
-line(123,763,123,747,0.8)
-line(171,763,171,747,0.8)
-text(147,739,'1\'-0"',8)
+rect(204, 287, 22, 25, lw=1.1)
+label(215, 301, "BASE", size=9)
 
-# --- 13'-4" vertical dimension ---
-line(715,1367,715,727,0.8)
-line(707,1367,723,1367,0.8)
-line(707,727,723,727,0.8)
-text(727,1047,'13\'-4" (160")',9,ha="left")
+# Right run
+rect(226, 247, 25, 65, lw=1.1)
+label(238.5, 281, "BASE", size=9)
 
-# --- TV ---
-rect(415,131,112,20,0.8)
-text(471,167,"TV",9)
+# Pantry
+rect(226, 190, 25, 57, lw=1.1)
+label(238.5, 220, "PANTRY", size=9, weight="bold")
 
-# --- 4'-5" dimension ---
-line(347,331,347,119,0.8)
-line(339,331,355,331,0.8)
-line(339,119,355,119,0.8)
-text(335,225,'4\'-5" (53")',9,ha="right")
+# Pantry door — 36"
+line(226, 200.5, 190, 200.5, lw=1.6)
+ax.add_patch(
+    Arc(
+        # Original SVG:
+        # M (226, 236.5) A 36 36 0 0 1 (190, 200.5)
+        # Hinge/center is at the pantry wall: (226, 200.5)
+        (X(226), Y(200.5)),
+        U(72),
+        U(72),
+        angle=0,
+        theta1=90,
+        theta2=180,
+        linewidth=1,
+        edgecolor=INK,
+    )
+)
+label(207, 197, '3\'-0" PANTRY DOOR', size=8)
 
-# --- Overall right dimension ---
-line(1027,1367,1179,1367,0.7)
-line(1027,119,1179,119,0.7)
-line(1171,1367,1171,119,0.8)
-line(1163,1375,1179,1359,0.8)
-line(1163,127,1179,111,0.8)
-text(1159,743,'26\'-0" OVERALL',9,ha="right")
+# Island plumbing center
+PLUMB_X = 148.0
+PLUMB_Y = 197.0
+ax.add_patch(
+    Circle(
+        (X(PLUMB_X), Y(PLUMB_Y)),
+        U(1.25),
+        facecolor="white",
+        edgecolor=INK,
+        linewidth=1.2,
+    )
+)
+line(145, 197, 151, 197, lw=0.8)
+line(148, 200, 148, 194, lw=0.8)
+label(148, 190, "ISLAND PLUMBING", size=9)
 
-# --- Left vertical dimensions ---
-line(123,1367,87,1367,0.7)
-line(123,1087,87,1087,0.7)
-line(87,1367,87,1087,0.8)
-text(75,1227,'5\'-10" (70")',9,ha="right")
+# Plumbing reference dimensions
+line(148, 312, 148, 197, lw=0.7, dashed=True)
+label(151, 257, '9\'-7"', size=9, ha="left")
 
-line(123,1087,71,1087,0.7)
-line(123,943,71,943,0.7)
-line(75,1087,75,943,0.8)
-text(63,1015,'3\'-0"',9,ha="right")
+line(148, 197, 226, 197, lw=0.7, dashed=True)
+label(187, 194, '6\'-6"', size=9)
 
-# --- Bottom segmented dimensions ---
-for x in [123,555,699,819,939,1027,1127]:
-    line(x,1367,x,1415,0.6)
+# Sectional, exact overall footprint 125" x 99"
+rect(12, 114, 125, 38, lw=0.9)
+rect(12, 53, 38, 61, lw=0.9)
+label(74.5, 135, "SECTIONAL", size=9)
+label(74.5, 142, '125" × 99"', size=8)
+line(15, 121, 134, 121, lw=0.6)
+line(43, 111, 43, 56, lw=0.6)
 
-line(123,1407,1127,1407,0.8)
-for x in [123,555,699,819,939,1027,1127]:
-    line(x-6,1413,x+6,1401,0.8)
+# 12" offset from left wall to sectional
+line(0, 159, 12, 159, lw=0.8)
+line(0, 161, 0, 157, lw=0.8)
+line(12, 161, 12, 157, lw=0.8)
+label(6, 155, '1\'-0"', size=8)
 
-text(339,1395,'9\'-0"',8)
-text(627,1395,'3\'-0"',8)
-text(759,1395,'2\'-6"',8)
-text(879,1395,'2\'-6"',8)
-text(983,1395,'1\'-10"',8)
-text(1077,1395,'2\'-1"',8)
+# TV
+rect(73, 3, 28, 5, lw=0.8)
+label(87, 12, "TV", size=9)
 
-# --- Labels ---
-text(555,227,"LIVING",12,weight="bold")
-text(775,1207,"KITCHEN",11,weight="bold")
-text(123,79,"SCHEMATIC FLOOR PLAN",11,ha="left",weight="bold")
+# ============================================================
+# DIMENSION ANNOTATIONS
+# These dimensions are also defined from physical-inch anchors.
+# ============================================================
+
+# 13'-4" = 160"
+line(148, 312, 148, 152, lw=0.8)
+raw_line(X(146), Y(312), X(150), Y(312), lw=0.8)
+raw_line(X(146), Y(152), X(150), Y(152), lw=0.8)
+label(151, 232, '13\'-4" (160")', size=9, ha="left")
+
+# 4'-5" = 53"
+line(56, 53, 56, 0, lw=0.8)
+raw_line(X(54), Y(53), X(58), Y(53), lw=0.8)
+raw_line(X(54), Y(0), X(58), Y(0), lw=0.8)
+label(53, 26.5, '4\'-5" (53")', size=9, ha="right")
+
+# Overall 26'-0" dimension at right
+overall_dim_x = X(262)
+raw_line(X(226), Y(312), overall_dim_x + 8, Y(312), lw=0.7)
+raw_line(X(226), Y(0), overall_dim_x + 8, Y(0), lw=0.7)
+raw_line(overall_dim_x, Y(312), overall_dim_x, Y(0), lw=0.8)
+raw_line(overall_dim_x - 8, Y(312) + 8, overall_dim_x + 8, Y(312) - 8, lw=0.8)
+raw_line(overall_dim_x - 8, Y(0) + 8, overall_dim_x + 8, Y(0) - 8, lw=0.8)
+raw_text(overall_dim_x - 12, (Y(312) + Y(0)) / 2, '26\'-0" OVERALL', size=9, ha="right")
+
+# Left-side 70" segment
+left_dim_x = X(-9)
+raw_line(X(0), Y(312), left_dim_x, Y(312), lw=0.7)
+raw_line(X(0), Y(242), left_dim_x, Y(242), lw=0.7)
+raw_line(left_dim_x, Y(312), left_dim_x, Y(242), lw=0.8)
+raw_text(left_dim_x - 12, (Y(312) + Y(242)) / 2, '5\'-10" (70")', size=9, ha="right")
+
+# Left-side 36" door opening segment
+door_dim_x = X(-12)
+raw_line(X(0), Y(242), door_dim_x - 4, Y(242), lw=0.7)
+raw_line(X(0), Y(206), door_dim_x - 4, Y(206), lw=0.7)
+raw_line(door_dim_x, Y(242), door_dim_x, Y(206), lw=0.8)
+raw_text(door_dim_x - 12, (Y(242) + Y(206)) / 2, '3\'-0"', size=9, ha="right")
+
+# Bottom segmented dimensions
+bottom_y = Y(322)
+for xi in [0, 108, 144, 174, 204, 226, 251]:
+    raw_line(X(xi), Y(312), X(xi), Y(324), lw=0.6)
+
+raw_line(X(0), bottom_y, X(251), bottom_y, lw=0.8)
+
+for xi in [0, 108, 144, 174, 204, 226, 251]:
+    x = X(xi)
+    raw_line(x - 6, bottom_y + 6, x + 6, bottom_y - 6, lw=0.8)
+
+raw_text(X(54),  Y(319), '9\'-0"',  size=8)
+raw_text(X(126), Y(319), '3\'-0"',  size=8)
+raw_text(X(159), Y(319), '2\'-6"',  size=8)
+raw_text(X(189), Y(319), '2\'-6"',  size=8)
+raw_text(X(215), Y(319), '1\'-10"', size=8)
+raw_text(X(238.5), Y(319), '2\'-1"', size=8)
+
+# Room labels
+label(108, 27, "LIVING", size=12, weight="bold")
+label(163, 272, "KITCHEN", size=11, weight="bold")
+
+# Page title intentionally positioned in page space, not floor-plan space
+raw_text(123, 79, "SCHEMATIC FLOOR PLAN", size=11, ha="left", weight="bold")
 
 plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-out_svg = "kitchen_floorplan_python.svg"
-out_png = "kitchen_floorplan_python.png"
+OUT_SVG = "/mnt/data/kitchen_floorplan_from_inches.svg"
+OUT_PNG = "/mnt/data/kitchen_floorplan_from_inches.png"
 
-fig.savefig(out_svg, format="svg", bbox_inches="tight", pad_inches=0)
-fig.savefig(out_png, format="png", dpi=150, bbox_inches="tight", pad_inches=0)
+fig.savefig(OUT_SVG, format="svg", bbox_inches="tight", pad_inches=0)
+fig.savefig(OUT_PNG, format="png", dpi=150, bbox_inches="tight", pad_inches=0)
 plt.close(fig)
 
-print(out_svg)
-print(out_png)
+print(f"SCALE = {SCALE} drawing units / inch")
+print(f"SVG: {OUT_SVG}")
+print(f"PNG: {OUT_PNG}")
