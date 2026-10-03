@@ -381,9 +381,30 @@ ISLAND_LEFT_X = ISLAND_RIGHT_X - ISLAND_W
 ISLAND_BOTTOM_Y = RANGE_RUN_TOP_Y - CLEAR_TO_RANGE
 ISLAND_TOP_Y = ISLAND_BOTTOM_Y - ISLAND_H
 
-rect(ISLAND_LEFT_X, ISLAND_TOP_Y, ISLAND_W, ISLAND_H, lw=1.4, fill=CABINET_FILL)
-label((ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2, (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 - 3, "ISLAND", size=10, weight="bold")
-label((ISLAND_LEFT_X + ISLAND_RIGHT_X) / 2, (ISLAND_TOP_Y + ISLAND_BOTTOM_Y) / 2 + 5, '7\'-0" × 3\'-6"', size=8)
+# Island shown as two stacked rectangles to display the overhang
+ISLAND_OVERHANG_H = 12.0
+ISLAND_BASE_H = 30.0
+
+# Top 12" overhang band
+rect(
+    ISLAND_LEFT_X,
+    ISLAND_TOP_Y,
+    ISLAND_W,
+    ISLAND_OVERHANG_H,
+    lw=1.4,
+    fill=CABINET_FILL,
+)
+
+# Lower 2'-6" body band
+rect(
+    ISLAND_LEFT_X,
+    ISLAND_TOP_Y + ISLAND_OVERHANG_H,
+    ISLAND_W,
+    ISLAND_BASE_H,
+    lw=1.4,
+    fill=CABINET_FILL,
+)
+
 
 # Optional dimension callouts for the island placement
 # 52" vertical clearance to range run
@@ -395,6 +416,57 @@ raw_line(X(dim_x), Y(ISLAND_BOTTOM_Y), X(ISLAND_LEFT_X), Y(ISLAND_BOTTOM_Y), lw=
 raw_line(X(dim_x), Y(RANGE_RUN_TOP_Y), X(174), Y(RANGE_RUN_TOP_Y), lw=0.6)
 raw_text(X(dim_x - 3), (Y(ISLAND_BOTTOM_Y) + Y(RANGE_RUN_TOP_Y)) / 2, '52"', size=9, ha="right")
 
+# Island depth breakdown aligned with the 52" dimension
+island_dim_x = dim_x
+
+# 12" overhang band
+line(island_dim_x, ISLAND_TOP_Y, island_dim_x, ISLAND_TOP_Y + ISLAND_OVERHANG_H, lw=0.8)
+raw_line(X(island_dim_x - 2), Y(ISLAND_TOP_Y), X(island_dim_x + 2), Y(ISLAND_TOP_Y), lw=0.8)
+raw_line(
+    X(island_dim_x - 2),
+    Y(ISLAND_TOP_Y + ISLAND_OVERHANG_H),
+    X(island_dim_x + 2),
+    Y(ISLAND_TOP_Y + ISLAND_OVERHANG_H),
+    lw=0.8,
+)
+raw_text(
+    X(island_dim_x - 3),
+    (Y(ISLAND_TOP_Y) + Y(ISLAND_TOP_Y + ISLAND_OVERHANG_H)) / 2,
+    '12"',
+    size=9,
+    ha="right",
+)
+
+# 30" base/body band
+line(
+    island_dim_x,
+    ISLAND_TOP_Y + ISLAND_OVERHANG_H,
+    island_dim_x,
+    ISLAND_BOTTOM_Y,
+    lw=0.8,
+)
+raw_line(
+    X(island_dim_x - 2),
+    Y(ISLAND_TOP_Y + ISLAND_OVERHANG_H),
+    X(island_dim_x + 2),
+    Y(ISLAND_TOP_Y + ISLAND_OVERHANG_H),
+    lw=0.8,
+)
+raw_line(
+    X(island_dim_x - 2),
+    Y(ISLAND_BOTTOM_Y),
+    X(island_dim_x + 2),
+    Y(ISLAND_BOTTOM_Y),
+    lw=0.8,
+)
+raw_text(
+    X(island_dim_x - 3),
+    (Y(ISLAND_TOP_Y + ISLAND_OVERHANG_H) + Y(ISLAND_BOTTOM_Y)) / 2,
+    '30"',
+    size=9,
+    ha="right",
+)
+
 # 36" horizontal clearance to pantry
 dim_y = ISLAND_BOTTOM_Y + 16
 line(ISLAND_RIGHT_X, dim_y, PANTRY_LEFT_X, dim_y, lw=0.8)
@@ -403,6 +475,30 @@ raw_line(X(PANTRY_LEFT_X), Y(dim_y - 2), X(PANTRY_LEFT_X), Y(dim_y + 2), lw=0.8)
 raw_line(X(ISLAND_RIGHT_X), Y(dim_y), X(ISLAND_RIGHT_X), Y(ISLAND_BOTTOM_Y), lw=0.6)
 raw_line(X(PANTRY_LEFT_X), Y(dim_y), X(PANTRY_LEFT_X), Y(190), lw=0.6)
 raw_text((X(ISLAND_RIGHT_X) + X(PANTRY_LEFT_X)) / 2, Y(dim_y - 4), '36"', size=9)
+
+# Island width dimension aligned with the 36" dimension
+island_width_dim_y = dim_y
+line(ISLAND_LEFT_X, island_width_dim_y, ISLAND_RIGHT_X, island_width_dim_y, lw=0.8)
+raw_line(
+    X(ISLAND_LEFT_X),
+    Y(island_width_dim_y - 2),
+    X(ISLAND_LEFT_X),
+    Y(island_width_dim_y + 2),
+    lw=0.8,
+)
+raw_line(
+    X(ISLAND_RIGHT_X),
+    Y(island_width_dim_y - 2),
+    X(ISLAND_RIGHT_X),
+    Y(island_width_dim_y + 2),
+    lw=0.8,
+)
+raw_text(
+    (X(ISLAND_LEFT_X) + X(ISLAND_RIGHT_X)) / 2,
+    Y(island_width_dim_y - 4),
+    '84"',
+    size=9,
+)
 
 # Re-draw plumbing marker in the foreground as a compact bullseye
 ax.add_patch(
