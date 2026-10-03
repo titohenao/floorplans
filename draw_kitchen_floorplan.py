@@ -18,6 +18,9 @@ CANVAS_W = 1270
 CANVAS_H = 1494
 INK = "#111"
 CABINET_FILL = "0.88"
+FRIDGE_FILL = "#bfbfbf"
+COUNTERTOP_FILL = "#d9d9d9"
+NOOK_WOOD_FILL = "#C8A27A"
 
 
 # ============================================================
@@ -167,7 +170,7 @@ FRIDGE_D = 36.0
 FRIDGE_TOP_Y = FRIDGE_FRONT_Y - FRIDGE_D
 
 # Main body
-rect(FRIDGE_X, FRIDGE_TOP_Y, FRIDGE_W, FRIDGE_D, lw=1.1)
+rect(FRIDGE_X, FRIDGE_TOP_Y, FRIDGE_W, FRIDGE_D, lw=1.1, fill=FRIDGE_FILL)
 label(FRIDGE_X + FRIDGE_W / 2, FRIDGE_TOP_Y + FRIDGE_D / 2, "FRIDGE", size=9, weight="bold")
 
 # Fridge total-depth indicator: 36"
@@ -194,7 +197,6 @@ rect(
 )
 
 rect(144, 287, 30, 25, lw=1.1, fill=CABINET_FILL)
-label(159, 301, "BASE", size=9)
 
 # Stove as its own polygon
 poly(
@@ -245,8 +247,6 @@ poly(
 )
 
 # Keep labels in each functional leg
-label(215, 301, "BASE", size=9)
-label(238.5, 281, "BASE", size=9)
 
 # Pantry
 rect(226, 190, 25, 57, lw=1.1)
@@ -331,6 +331,64 @@ label(6, 155, '1\'-0"', size=8)
 # TV
 rect(73, 3, 28, 5, lw=0.8)
 label(87, 12, "TV", size=9)
+
+# Breakfast nook
+# L-shaped built-in bench in the bottom-left corner.
+BENCH_DEPTH = 24.0
+BENCH_LONG_L = 84.0   # along bottom wall
+BENCH_SHORT_L = 60.0  # along left wall
+
+# L-shaped built-in bench as one continuous polygon
+poly(
+    [
+        (0.0, 312.0),
+        (BENCH_LONG_L, 312.0),
+        (BENCH_LONG_L, 312.0 - BENCH_DEPTH),
+        (BENCH_DEPTH, 312.0 - BENCH_DEPTH),
+        (BENCH_DEPTH, 312.0 - BENCH_SHORT_L),
+        (0.0, 312.0 - BENCH_SHORT_L),
+    ],
+    lw=0.9,
+    fill=NOOK_WOOD_FILL,
+)
+
+# Internal dimensions only
+label(
+    BENCH_LONG_L / 2.0 + 8.0,
+    312.0 - BENCH_DEPTH / 2.0,
+    '84" x 24"',
+    size=8,
+)
+label(
+    BENCH_DEPTH / 2.0,
+    312.0 - BENCH_SHORT_L / 2.0 - 6.0,
+    '60" x 24"',
+    size=8,
+)
+
+# Table centered in front of the L-bench
+TABLE_W = 48.0
+TABLE_D = 30.0
+TABLE_GAP = 11.0  # target 10–12 in from bench seat edges
+
+TABLE_X = BENCH_DEPTH + TABLE_GAP
+TABLE_BOTTOM_Y = (312.0 - BENCH_DEPTH) - TABLE_GAP
+TABLE_Y = TABLE_BOTTOM_Y - TABLE_D
+
+rect(
+    TABLE_X,
+    TABLE_Y,
+    TABLE_W,
+    TABLE_D,
+    lw=0.9,
+    fill=NOOK_WOOD_FILL,
+)
+label(
+    TABLE_X + TABLE_W / 2.0,
+    TABLE_Y + TABLE_D / 2.0,
+    'TABLE 48" x 30"',
+    size=8,
+)
 
 # ============================================================
 # DIMENSION ANNOTATIONS
@@ -444,7 +502,7 @@ rect(
     ISLAND_W,
     ISLAND_OVERHANG_H,
     lw=1.4,
-    fill=CABINET_FILL,
+    fill=COUNTERTOP_FILL,
 )
 
 # Lower 2'-6" body band
